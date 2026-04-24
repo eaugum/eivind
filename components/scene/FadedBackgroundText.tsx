@@ -15,7 +15,7 @@ const respira = localFont({
   variable: "--font-respira",
 });
 
-const WORDS = ["eivind", "hjem", "fra", "byen"];
+const WORDS = ["Eivind", "hjem", "fra", "byen"];
 
 const SWITCH_INTERVAL_MS = 3000;
 
