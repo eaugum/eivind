@@ -5,7 +5,7 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 import { useGraph, useThree } from "@react-three/fiber";
 import { LoopRepeat } from "three";
 import type { Bone, Group, MeshStandardMaterial, SkinnedMesh } from "three";
-import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
   getCharacterModelConfig,
@@ -54,17 +54,21 @@ export function AdventurerModel({
     true,
     undefined,
     (loader) => {
-      loader.setKTX2Loader(ktx2Loader);
+      loader.setKTX2Loader(
+        ktx2Loader as unknown as Parameters<typeof loader.setKTX2Loader>[0]
+      );
     }
   );
   const modelScene = useMemo(() => clone(scene), [scene]);
-  const { nodes, materials } = useGraph(modelScene) as ModelGraph;
+  const { nodes, materials } = useGraph(modelScene) as unknown as ModelGraph;
   const material = Object.values(materials)[0];
   const { actions, mixer } = useAnimations(animations, group);
 
   useEffect(() => {
     useGLTF.preload(CHARACTER_MODEL_URL, true, undefined, (loader) => {
-      loader.setKTX2Loader(ktx2Loader);
+      loader.setKTX2Loader(
+        ktx2Loader as unknown as Parameters<typeof loader.setKTX2Loader>[0]
+      );
     });
   }, [ktx2Loader]);
 
@@ -101,7 +105,6 @@ export function AdventurerModel({
     audio.loop = true;
     audio.volume = 0.5;
     audio.autoplay = true;
-    audio.playsInline = true;
 
     const interactionEvents: Array<keyof WindowEventMap> = [
       "pointerdown",
