@@ -10,25 +10,37 @@ import {
   type CharacterInputState,
 } from "@/components/scene/characterState";
 
-const Z_LEFT = -5;
-const Z_RIGHT = 5;
 const WALK_SPEED = 2.5;
 const ROTATE_SPEED = Math.PI;
 const ROTATION_LERP_SPEED = 10;
 const DEFAULT_ROTATION_Y = Math.PI / 2;
+const VIEWPORT_WRAP_RATIO = 1.35;
 
 export function WalkingCharacter({
   floorY = -2.2,
   muted = false,
   resetToken = 0,
+  mobileInput,
 }: {
   floorY?: number;
   muted?: boolean;
   resetToken?: number;
+  mobileInput?: Partial<CharacterInputState>;
 }) {
   const groupRef = useRef<Group>(null);
   const zRef = useRef(0);
-  const keysRef = useRef<CharacterInputState>({
+  const keyboardRef = useRef<CharacterInputState>({
+    a: false,
+    d: false,
+    w: false,
+    s: false,
+    space: false,
+    arrowLeft: false,
+    arrowRight: false,
+    arrowUp: false,
+    arrowDown: false,
+  });
+  const touchRef = useRef<CharacterInputState>({
     a: false,
     d: false,
     w: false,
@@ -43,8 +55,45 @@ export function WalkingCharacter({
   const prevAnimationRef = useRef<CharacterAnimationState>("idle");
   const lastResetTokenRef = useRef(resetToken);
   const targetRotationYRef = useRef(DEFAULT_ROTATION_Y);
+  const getCurrentInputState = (): CharacterInputState => ({
+    a: keyboardRef.current.a || touchRef.current.a,
+    d: keyboardRef.current.d || touchRef.current.d,
+    w: keyboardRef.current.w || touchRef.current.w,
+    s: keyboardRef.current.s || touchRef.current.s,
+    space: keyboardRef.current.space || touchRef.current.space,
+    arrowLeft: keyboardRef.current.arrowLeft || touchRef.current.arrowLeft,
+    arrowRight: keyboardRef.current.arrowRight || touchRef.current.arrowRight,
+    arrowUp: keyboardRef.current.arrowUp || touchRef.current.arrowUp,
+    arrowDown: keyboardRef.current.arrowDown || touchRef.current.arrowDown,
+  });
+
+  useEffect(() => {
+    touchRef.current = {
+      a: Boolean(mobileInput?.a),
+      d: Boolean(mobileInput?.d),
+      w: Boolean(mobileInput?.w),
+      s: Boolean(mobileInput?.s),
+      space: Boolean(mobileInput?.space),
+      arrowLeft: Boolean(mobileInput?.arrowLeft),
+      arrowRight: Boolean(mobileInput?.arrowRight),
+      arrowUp: Boolean(mobileInput?.arrowUp),
+      arrowDown: Boolean(mobileInput?.arrowDown),
+    };
+  }, [mobileInput]);
+
   const resetCharacter = () => {
-    keysRef.current = {
+    keyboardRef.current = {
+      a: false,
+      d: false,
+      w: false,
+      s: false,
+      space: false,
+      arrowLeft: false,
+      arrowRight: false,
+      arrowUp: false,
+      arrowDown: false,
+    };
+    touchRef.current = {
       a: false,
       d: false,
       w: false,
@@ -67,38 +116,38 @@ export function WalkingCharacter({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "KeyA") keysRef.current.a = true;
-      if (e.code === "KeyD") keysRef.current.d = true;
-      if (e.code === "KeyW") keysRef.current.w = true;
-      if (e.code === "KeyS") keysRef.current.s = true;
-      if (e.code === "ArrowLeft") keysRef.current.arrowLeft = true;
-      if (e.code === "ArrowRight") keysRef.current.arrowRight = true;
+      if (e.code === "KeyA") keyboardRef.current.a = true;
+      if (e.code === "KeyD") keyboardRef.current.d = true;
+      if (e.code === "KeyW") keyboardRef.current.w = true;
+      if (e.code === "KeyS") keyboardRef.current.s = true;
+      if (e.code === "ArrowLeft") keyboardRef.current.arrowLeft = true;
+      if (e.code === "ArrowRight") keyboardRef.current.arrowRight = true;
       if (e.code === "Space") {
         e.preventDefault();
-        keysRef.current.space = true;
+        keyboardRef.current.space = true;
       }
       if (e.code === "ArrowUp") {
         e.preventDefault();
-        keysRef.current.arrowUp = true;
+        keyboardRef.current.arrowUp = true;
       }
       if (e.code === "ArrowDown") {
         e.preventDefault();
-        keysRef.current.arrowDown = true;
+        keyboardRef.current.arrowDown = true;
       }
       if (e.code === "KeyR" && !e.repeat) {
         resetCharacter();
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "KeyA") keysRef.current.a = false;
-      if (e.code === "KeyD") keysRef.current.d = false;
-      if (e.code === "KeyW") keysRef.current.w = false;
-      if (e.code === "KeyS") keysRef.current.s = false;
-      if (e.code === "ArrowLeft") keysRef.current.arrowLeft = false;
-      if (e.code === "ArrowRight") keysRef.current.arrowRight = false;
-      if (e.code === "Space") keysRef.current.space = false;
-      if (e.code === "ArrowUp") keysRef.current.arrowUp = false;
-      if (e.code === "ArrowDown") keysRef.current.arrowDown = false;
+      if (e.code === "KeyA") keyboardRef.current.a = false;
+      if (e.code === "KeyD") keyboardRef.current.d = false;
+      if (e.code === "KeyW") keyboardRef.current.w = false;
+      if (e.code === "KeyS") keyboardRef.current.s = false;
+      if (e.code === "ArrowLeft") keyboardRef.current.arrowLeft = false;
+      if (e.code === "ArrowRight") keyboardRef.current.arrowRight = false;
+      if (e.code === "Space") keyboardRef.current.space = false;
+      if (e.code === "ArrowUp") keyboardRef.current.arrowUp = false;
+      if (e.code === "ArrowDown") keyboardRef.current.arrowDown = false;
     };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -108,19 +157,24 @@ export function WalkingCharacter({
     };
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (lastResetTokenRef.current !== resetToken) {
       lastResetTokenRef.current = resetToken;
       resetCharacter();
     }
 
-    const { a, d, s, arrowLeft, arrowRight, arrowDown } = keysRef.current;
+    const inputState = getCurrentInputState();
+    const { a, d, s, arrowLeft, arrowRight, arrowDown } = inputState;
     const movingLeft = a || arrowLeft;
     const movingRight = d || arrowRight;
     const rotating = s || arrowDown;
+    const viewport = state.viewport.getCurrentViewport(state.camera, [0, 0, 0]);
+    const zLimit = (viewport.width * 0.5) * VIEWPORT_WRAP_RATIO;
+    const zLeft = -zLimit;
+    const zRight = zLimit;
 
     // Keep animation state in sync with keys every frame (keyup can be missed)
-    const nextAnimation = getCharacterAnimationState(keysRef.current);
+    const nextAnimation = getCharacterAnimationState(inputState);
     if (nextAnimation !== prevAnimationRef.current) {
       prevAnimationRef.current = nextAnimation;
       setAnimation(nextAnimation);
@@ -128,8 +182,8 @@ export function WalkingCharacter({
 
     if (movingLeft) zRef.current += delta * WALK_SPEED;
     if (movingRight) zRef.current -= delta * WALK_SPEED;
-    if (zRef.current > Z_RIGHT) zRef.current = Z_LEFT;
-    if (zRef.current < Z_LEFT) zRef.current = Z_RIGHT;
+    if (zRef.current > zRight) zRef.current = zLeft;
+    if (zRef.current < zLeft) zRef.current = zRight;
 
     if (groupRef.current) {
       groupRef.current.position.z = zRef.current;
