@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eivind — Home From the City
+
+An interactive 3D character scene built with Next.js, React Three Fiber, and Drei.
+
+The project includes:
+- A merged GLB character model with multiple animations
+- Keyboard-driven movement and actions
+- Background music + action sound effects
+- In-scene control UI (mute + reset)
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org/)
+- [React](https://react.dev/)
+- [Three.js](https://threejs.org/)
+- [@react-three/fiber](https://github.com/pmndrs/react-three-fiber)
+- [@react-three/drei](https://github.com/pmndrs/drei)
+- TypeScript + ESLint
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Controls
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `A` / `D` or `Left` / `Right`: Walk
+- `W` or `Up`: Jump
+- `Space`: Dance
+- `S` or `Down`: Rotate
+- `R`: Reset position + default rotation
 
-## Learn More
+UI buttons:
+- `Mute/Unmute sound`
+- `Reset`
 
-To learn more about Next.js, take a look at the following resources:
+## Audio Behavior
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Background music loops during normal gameplay.
+- Jump and dance trigger dedicated effect sounds.
+- While jump/dance effect sound is active, background music pauses and resumes afterward.
+- Autoplay is attempted on load. If blocked by browser policy, playback starts on first user interaction.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 3D Assets and Textures
 
-## Deploy on Vercel
+- Character model: `public/Eivind.glb`
+- KTX2/Basis transcoder files: `public/basis/`
+- Character animation sounds: `public/idle.mp3`, `public/jump.mp3`, `public/dance.mp3`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/` — Next.js app router files
+- `components/scene/` — 3D scene components and character logic
+- `public/` — models, textures, audio, and static assets
+
+## Scripts
+
+- `npm run dev` — Start dev server
+- `npm run lint` — Run ESLint
+- `npm run build` — Build for production
+- `npm run start` — Start production server
+
+## Notes
+
+- The repo was cleaned to remove unused large assets in `public/`.
+- The scene is optimized around a single merged character model for better loading performance.

@@ -45,6 +45,7 @@ a {
   text-decoration: none;
 }
 
+
 ::selection {
   background: rgba(163, 230, 53, 0.35);
   color: #020617;
@@ -86,6 +87,13 @@ a {
   text-transform: uppercase;
   color: var(--accent);
   opacity: 0.9;
+}
+
+.mobile-control-btn {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 900px) {

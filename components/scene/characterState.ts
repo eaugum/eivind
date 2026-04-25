@@ -3,43 +3,42 @@ export type CharacterAnimationState = "idle" | "walk" | "jump" | "dance";
 export type CharacterInputState = {
   a: boolean;
   d: boolean;
+  w: boolean;
+  s: boolean;
   space: boolean;
-  c: boolean;
+  arrowLeft: boolean;
+  arrowRight: boolean;
+  arrowUp: boolean;
+  arrowDown: boolean;
 };
 
 type CharacterModelConfig = {
-  url: "/idle.glb" | "/walk.glb" | "/jump.glb" | "/dance.glb";
   rotation: [number, number, number];
 };
 
-const SIDE_ROTATION: [number, number, number] = [Math.PI / 2, 0, Math.PI / 2];
-const WALK_ROTATION: [number, number, number] = [Math.PI / 2, 0, 0];
+const MODEL_ROTATION: [number, number, number] = [Math.PI / 2, 0, 0];
 
 const MODEL_CONFIG: Record<CharacterAnimationState, CharacterModelConfig> = {
   idle: {
-    url: "/idle.glb",
-    rotation: SIDE_ROTATION,
+    rotation: MODEL_ROTATION,
   },
   walk: {
-    url: "/walk.glb",
-    rotation: WALK_ROTATION,
+    rotation: MODEL_ROTATION,
   },
   jump: {
-    url: "/jump.glb",
-    rotation: SIDE_ROTATION,
+    rotation: MODEL_ROTATION,
   },
   dance: {
-    url: "/dance.glb",
-    rotation: SIDE_ROTATION,
+    rotation: MODEL_ROTATION,
   },
 };
 
 export function getCharacterAnimationState(
   input: CharacterInputState
 ): CharacterAnimationState {
-  if (input.c) return "dance";
-  if (input.space) return "jump";
-  if (input.a || input.d) return "walk";
+  if (input.space) return "dance";
+  if (input.arrowUp || input.w) return "jump";
+  if (input.a || input.d || input.arrowLeft || input.arrowRight) return "walk";
   return "idle";
 }
 
